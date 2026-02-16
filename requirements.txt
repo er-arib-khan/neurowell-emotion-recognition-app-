@@ -1,5 +1,13 @@
 streamlit
 tensorflow
 numpy
+opencv-python
 Pillow
-opencv-python-headless
+pandas
+plotly
+streamlit-option-menu
+fpdf
+matplotlib
+textblob
+nltk
+wordcloud

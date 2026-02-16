@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Streamlit
+*.streamlit
+
+# Data files
+*.json
+*.csv
+*.h5
+*.pkl
+*.joblib
+
+# Audio files
+*.wav
+*.mp3
+*.ogg
+
+# Images
+*.jpg
+*.jpeg
+*.png
+*.gif
+
+# Profile images
+profile_images/
+
+# Logs
+*.log
+
+# Environment variables
+.env
