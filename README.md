@@ -63,7 +63,12 @@ pip install -r requirements.txt
 Run App:
 
 Bash
+# Activate the virtual environment
+venv\Scripts\activate
 
 streamlit run app.py
-
- python -m streamlit run app.py
+python -m streamlit run app.py
+ 
+python -m streamlit run Main-app.py
+  python -m streamlit run Main-app2.py
+  python -m streamlit run Voice-app.py
