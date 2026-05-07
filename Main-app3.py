@@ -44,6 +44,1149 @@ try:
 except:
     pass
 
+# ==================== SESSION STATE INITIALIZATION (MUST BE FIRST) ====================
+# Initialize all session state variables at the very beginning
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+if 'username' not in st.session_state:
+    st.session_state.username = None
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = "Home"
+if 'analysis_history' not in st.session_state:
+    st.session_state.analysis_history = []
+if 'profile_image' not in st.session_state:
+    st.session_state.profile_image = None
+if 'current_text_analysis' not in st.session_state:
+    st.session_state.current_text_analysis = None
+if 'current_voice_analysis' not in st.session_state:
+    st.session_state.current_voice_analysis = None
+if 'recording' not in st.session_state:
+    st.session_state.recording = False
+if 'theme' not in st.session_state:
+    st.session_state.theme = 'light'
+# ==================== COMPLETE UPDATED NEUROWELL APPLICATION ====================
+
+# ==================== THEME MANAGEMENT ====================
+if 'theme' not in st.session_state:
+    st.session_state.theme = 'light'
+
+def toggle_theme():
+    st.session_state.theme = 'dark' if st.session_state.theme == 'light' else 'light'
+
+def get_theme_css():
+    if st.session_state.theme == 'dark':
+        return """
+        <style>
+        /* Dark Theme Variables */
+        :root {
+            --primary: #818CF8;
+            --primary-dark: #6366F1;
+            --secondary: #34D399;
+            --background: #111827;
+            --surface: #1F2937;
+            --surface-light: #374151;
+            --text: #F9FAFB;
+            --text-secondary: #9CA3AF;
+            --border: #374151;
+            --card-bg: linear-gradient(135deg, #1F2937, #111827);
+        }
+        
+        /* Global Dark Styles */
+        .stApp {
+            background: linear-gradient(135deg, #111827, #1F2937);
+        }
+        
+        .main-header, .sub-header, h1, h2, h3, h4, p, label, .stMarkdown {
+            color: #F9FAFB !important;
+        }
+        
+        .stTextInput > div > div > input, .stTextArea > div > div > textarea, 
+        .stSelectbox > div > div, .stMultiSelect > div > div {
+            background-color: #374151 !important;
+            color: #F9FAFB !important;
+            border-color: #4B5563 !important;
+        }
+        
+        .wellness-tip, .metric-card, .stat-card {
+            background: linear-gradient(135deg, #1F2937, #111827) !important;
+            border-color: #374151 !important;
+        }
+        
+        .sidebar-profile {
+            background: linear-gradient(135deg, #1F2937, #111827) !important;
+        }
+        
+        .voice-recording {
+            background: linear-gradient(135deg, #1F2937, #111827) !important;
+            border-color: #4B5563 !important;
+        }
+        
+        div[data-testid="stExpander"] {
+            background: #1F2937 !important;
+            border-color: #374151 !important;
+        }
+        
+        .stButton > button {
+            background: linear-gradient(135deg, #818CF8, #6366F1) !important;
+            color: white !important;
+        }
+        
+        .stButton > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(129, 140, 248, 0.3);
+        }
+        </style>
+        """
+    else:
+        return """
+        <style>
+        /* Light Theme Variables */
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --secondary: #10B981;
+            --background: #F9FAFB;
+            --surface: #FFFFFF;
+            --surface-light: #F3F4F6;
+            --text: #1F2937;
+            --text-secondary: #6B7280;
+            --border: #E5E7EB;
+            --card-bg: linear-gradient(135deg, #FFFFFF, #F9FAFB);
+        }
+        
+        /* Global Light Styles */
+        .stApp {
+            background: linear-gradient(135deg, #F9FAFB, #F3F4F6);
+        }
+        
+        .stButton > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.3);
+        }
+        </style>
+        """
+
+# ==================== MODERN CSS STYLES ====================
+MODERN_CSS = """
+<style>
+    /* Glassmorphism Effects */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Animated Gradient Border */
+    .gradient-border {
+        position: relative;
+        background: linear-gradient(135deg, #6366F1, #10B981, #F59E0B);
+        border-radius: 20px;
+        padding: 2px;
+    }
+    
+    .gradient-border > * {
+        background: var(--surface);
+        border-radius: 18px;
+        margin: 0;
+        padding: 1rem;
+    }
+    
+    /* Emotion Cards */
+    .emotion-card {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 15px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        animation: fadeInUp 0.5s ease-out;
+    }
+    
+    .emotion-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Animated Icons */
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .animated-icon {
+        animation: bounce 2s ease-in-out infinite;
+        display: inline-block;
+    }
+    
+    /* Loading Spinner */
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(99, 102, 241, 0.3);
+        border-radius: 50%;
+        border-top-color: #6366F1;
+        animation: spin 1s ease-in-out infinite;
+        margin: 20px auto;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Progress Rings */
+    .progress-ring {
+        transform: rotate(-90deg);
+    }
+    
+    .progress-ring-circle {
+        transition: stroke-dashoffset 0.35s;
+        transform-origin: 50% 50%;
+    }
+    
+    /* Floating Labels */
+    .floating-label {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    
+    .floating-label input {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid var(--border);
+        border-radius: 10px;
+        background: transparent;
+        transition: all 0.3s;
+    }
+    
+    .floating-label label {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        transition: all 0.3s;
+        pointer-events: none;
+        color: var(--text-secondary);
+    }
+    
+    .floating-label input:focus + label,
+    .floating-label input:not(:placeholder-shown) + label {
+        top: 0;
+        font-size: 0.75rem;
+        background: var(--surface);
+        padding: 0 0.25rem;
+    }
+    
+    /* Ripple Effect */
+    .ripple-button {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+    
+    .ripple-button:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .ripple-button:active:after {
+        width: 300px;
+        height: 300px;
+    }
+    
+    /* Toast Notifications */
+    .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--surface);
+        color: var(--text);
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        animation: slideInRight 0.3s ease-out;
+        z-index: 1000;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    /* Keyboard Shortcut Badge */
+    .shortcut-badge {
+        display: inline-block;
+        background: var(--primary);
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 5px;
+        font-size: 0.7rem;
+        margin-left: 0.5rem;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .glass-card {
+            padding: 1rem;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+        }
+        
+        .stButton > button {
+            font-size: 0.9rem;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--surface-light);
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-dark);
+    }
+    
+    /* Tooltips */
+    [data-tooltip] {
+        position: relative;
+        cursor: help;
+    }
+    
+    [data-tooltip]:before {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.5rem;
+        background: var(--surface);
+        color: var(--text);
+        font-size: 0.8rem;
+        border-radius: 5px;
+        white-space: nowrap;
+        visibility: hidden;
+        opacity: 0;
+        transition: all 0.3s;
+        z-index: 1000;
+    }
+    
+    [data-tooltip]:hover:before {
+        visibility: visible;
+        opacity: 1;
+    }
+    
+    /* Wellness Score Gauge */
+    .gauge-container {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        margin: 0 auto;
+    }
+    
+    .gauge-value {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--primary);
+    }
+    
+    /* Streak Counter */
+    .streak-badge {
+        background: linear-gradient(135deg, #F59E0B, #EF4444);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: pulse 2s infinite;
+    }
+    
+    .streak-fire {
+        animation: bounce 1s ease-in-out infinite;
+    }
+    
+    /* Achievement Badges */
+    .achievement-badge {
+        text-align: center;
+        padding: 1rem;
+        background: linear-gradient(135deg, var(--surface), var(--surface-light));
+        border-radius: 15px;
+        transition: all 0.3s;
+    }
+    
+    .achievement-badge.unlocked {
+        background: linear-gradient(135deg, #F59E0B20, #EF444420);
+        border: 2px solid #F59E0B;
+    }
+    
+    .achievement-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Quick Action Cards */
+    .quick-action-card {
+        text-align: center;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--surface), var(--surface-light));
+        border-radius: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .quick-action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .quick-action-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Voice Waveform Animation */
+    .waveform {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        height: 60px;
+    }
+    
+    .waveform-bar {
+        width: 4px;
+        height: 20px;
+        background: var(--primary);
+        border-radius: 2px;
+        animation: wave 1s ease-in-out infinite;
+    }
+    
+    @keyframes wave {
+        0%, 100% { height: 20px; }
+        50% { height: 60px; }
+    }
+    
+    /* Colorful Text */
+    .gradient-text {
+        background: linear-gradient(135deg, #6366F1, #10B981, #F59E0B);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    /* Mood-based Color Accents */
+    .mood-happy { border-left-color: #10B981 !important; }
+    .mood-sad { border-left-color: #3B82F6 !important; }
+    .mood-angry { border-left-color: #EF4444 !important; }
+    .mood-fear { border-left-color: #8B5CF6 !important; }
+    .mood-neutral { border-left-color: #6B7280 !important; }
+    .mood-surprise { border-left-color: #EC4899 !important; }
+    .mood-disgust { border-left-color: #10B981 !important; }
+</style>
+"""
+
+# ==================== GAMIFICATION SYSTEM ====================
+class Gamification:
+    def __init__(self):
+        self.achievements = {
+            'first_analysis': {'name': 'First Steps', 'icon': '🎯', 'description': 'Complete your first analysis'},
+            'analysis_streak_5': {'name': 'Consistency', 'icon': '🔥', 'description': '5 days in a row'},
+            'analysis_streak_30': {'name': 'Dedication', 'icon': '🏆', 'description': '30 days in a row'},
+            'voice_master': {'name': 'Voice Master', 'icon': '🎤', 'description': 'Complete 10 voice analyses'},
+            'text_journalist': {'name': 'Journaling Pro', 'icon': '📝', 'description': 'Complete 20 text analyses'},
+            'facial_expert': {'name': 'Face Reader', 'icon': '😊', 'description': 'Complete 15 facial analyses'},
+            'emotion_diverse': {'name': 'Emotion Explorer', 'icon': '🌈', 'description': 'Experience all 7 emotions'},
+            'crisis_helper': {'name': 'Safety First', 'icon': '🛡️', 'description': 'Use crisis resources'},
+            'wellness_warrior': {'name': 'Wellness Warrior', 'icon': '💪', 'description': 'Maintain positive streak for 7 days'}
+        }
+        
+    def calculate_streak(self, history):
+        """Calculate current analysis streak"""
+        if not history:
+            return 0
+        
+        streak = 0
+        current_date = datetime.now().date()
+        
+        # Sort by date
+        dates = []
+        for entry in history:
+            timestamp = entry.get('timestamp', '')[:10]
+            try:
+                dates.append(datetime.strptime(timestamp, '%Y-%m-%d').date())
+            except:
+                continue
+        
+        dates = sorted(set(dates), reverse=True)
+        
+        for date in dates:
+            if date == current_date - timedelta(days=streak):
+                streak += 1
+            else:
+                break
+                
+        return streak
+    
+    def check_achievements(self, user_history):
+        """Check and unlock achievements"""
+        unlocked = []
+        
+        # Track counts
+        total_analyses = len(user_history)
+        facial_count = len([e for e in user_history if e.get('type') == 'facial_analysis'])
+        text_count = len([e for e in user_history if e.get('type') == 'text_analysis'])
+        voice_count = len([e for e in user_history if e.get('type') == 'voice_analysis'])
+        
+        # First analysis
+        if total_analyses >= 1:
+            unlocked.append('first_analysis')
+        
+        # Voice master
+        if voice_count >= 10:
+            unlocked.append('voice_master')
+        
+        # Text journalist
+        if text_count >= 20:
+            unlocked.append('text_journalist')
+        
+        # Facial expert
+        if facial_count >= 15:
+            unlocked.append('facial_expert')
+        
+        # Emotion diversity
+        emotions = set()
+        for entry in user_history:
+            if 'dominant_emotion' in entry:
+                emotions.add(entry['dominant_emotion'])
+        if len(emotions) >= 7:
+            unlocked.append('emotion_diverse')
+        
+        # Streak achievements
+        streak = self.calculate_streak(user_history)
+        if streak >= 5:
+            unlocked.append('analysis_streak_5')
+        if streak >= 30:
+            unlocked.append('analysis_streak_30')
+        
+        return unlocked
+
+# ==================== WELLNESS SCORE CALCULATOR ====================
+class WellnessScoreCalculator:
+    @staticmethod
+    def calculate_overall_score(history):
+        """Calculate overall wellness score from 0-100"""
+        if not history:
+            return 50  # Neutral starting point
+        
+        total_score = 0
+        weights = {
+            'facial': 0.3,
+            'text': 0.35,
+            'voice': 0.35
+        }
+        
+        facial_scores = []
+        text_scores = []
+        voice_scores = []
+        
+        for entry in history:
+            entry_type = entry.get('type', 'facial_analysis')
+            emotion = entry.get('dominant_emotion', 'neutral')
+            
+            # Score based on emotion
+            emotion_scores = {
+                'happy': 100, 'joy': 100, 'calm': 90, 'trust': 85,
+                'neutral': 60, 'anticipation': 70, 'surprise': 65,
+                'sad': 30, 'sadness': 30, 'fear': 25, 'fearful': 25,
+                'angry': 20, 'anger': 20, 'disgust': 15
+            }
+            score = emotion_scores.get(emotion, 50)
+            
+            # Apply confidence weighting
+            confidence = entry.get('confidence', 0.5)
+            weighted_score = score * confidence
+            
+            if entry_type == 'facial_analysis':
+                facial_scores.append(weighted_score)
+            elif entry_type == 'text_analysis':
+                text_scores.append(weighted_score)
+            else:
+                voice_scores.append(weighted_score)
+        
+        # Calculate averages
+        avg_facial = np.mean(facial_scores) if facial_scores else 50
+        avg_text = np.mean(text_scores) if text_scores else 50
+        avg_voice = np.mean(voice_scores) if voice_scores else 50
+        
+        # Weighted final score
+        total_score = (avg_facial * weights['facial'] + 
+                      avg_text * weights['text'] + 
+                      avg_voice * weights['voice'])
+        
+        return round(total_score, 1)
+    
+    @staticmethod
+    def get_trend(history):
+        """Calculate trend (improving/stable/declining)"""
+        if len(history) < 2:
+            return "stable"
+        
+        # Get last 5 scores
+        recent_scores = []
+        for entry in history[-5:]:
+            emotion = entry.get('dominant_emotion', 'neutral')
+            emotion_scores = {
+                'happy': 100, 'joy': 100, 'calm': 90, 'trust': 85,
+                'neutral': 60, 'anticipation': 70, 'surprise': 65,
+                'sad': 30, 'sadness': 30, 'fear': 25, 'fearful': 25,
+                'angry': 20, 'anger': 20, 'disgust': 15
+            }
+            recent_scores.append(emotion_scores.get(emotion, 50))
+        
+        if len(recent_scores) >= 2:
+            if recent_scores[-1] > recent_scores[0] + 10:
+                return "improving"
+            elif recent_scores[-1] < recent_scores[0] - 10:
+                return "declining"
+        return "stable"
+
+# ==================== DAILY QUOTES ====================
+DAILY_QUOTES = [
+    "Your mental health is a priority. Your happiness is essential. Your self-care is a necessity.",
+    "Healing is not linear. Every step forward, no matter how small, is still progress.",
+    "You don't have to control your thoughts. You just have to stop letting them control you.",
+    "Self-care is giving the world the best of you, instead of what's left of you.",
+    "Sometimes the most productive thing you can do is rest.",
+    "Your feelings are valid. You don't need anyone's permission to feel them.",
+    "Progress over perfection. Every small step counts.",
+    "Be gentle with yourself. You're doing the best you can.",
+    "The strongest people are those who win battles others know nothing about.",
+    "You are allowed to be both a masterpiece and a work in progress simultaneously."
+]
+
+def get_daily_quote():
+    """Get today's quote based on date"""
+    day_of_year = datetime.now().timetuple().tm_yday
+    return DAILY_QUOTES[day_of_year % len(DAILY_QUOTES)]
+
+# ==================== UPDATED LOGIN/SIGNUP WITH MODERN UI ====================
+def show_login_signup_modern():
+    col1, col2 = st.columns([1, 1])
+    
+    with col1:
+        st.markdown(f"""
+        <div style="text-align: center; padding: 2rem;">
+            <div class="animated-icon">
+                {get_logo_html('xlarge')}
+            </div>
+            <h1 class="gradient-text" style="font-size: 3rem; margin: 1rem 0 0.5rem 0;">NeuroWell</h1>
+            <p style="color: var(--text-secondary); font-size: 1.1rem;">Your AI-Powered Mental Health Companion</p>
+            
+            <div style="margin-top: 2rem;">
+                <div class="glass-card">
+                    <h3>✨ Features</h3>
+                    <p>🎭 Facial Emotion Recognition</p>
+                    <p>📝 Advanced Text Analysis</p>
+                    <p>🎤 Voice Emotion Detection</p>
+                    <p>📊 Personalized Insights</p>
+                    <p>🏆 Achievement System</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <div style="padding: 2rem;">
+            <div class="glass-card">
+                {get_logo_html('medium')}
+                <h2 style="text-align: center; margin: 1rem 0;">Welcome to NeuroWell</h2>
+        """, unsafe_allow_html=True)
+        
+        tab1, tab2 = st.tabs(["🔐 Login", "📝 Sign Up"])
+        
+        with tab1:
+            with st.form("login_form_modern"):
+                username = st.text_input("Username", placeholder="Enter your username", key="login_username")
+                password = st.text_input("Password", type="password", placeholder="Enter your password", key="login_password")
+                
+                st.markdown("---")
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    submitted = st.form_submit_button("Login", use_container_width=True, type="primary")
+                with col_b:
+                    st.markdown('<div style="text-align: center; padding-top: 0.5rem;"><a href="#" style="color: var(--primary);">Forgot Password?</a></div>', unsafe_allow_html=True)
+                
+                if submitted:
+                    if username and password:
+                        with st.spinner("Verifying credentials..."):
+                            success, result = verify_user(username, password)
+                            if success:
+                                st.session_state.logged_in = True
+                                st.session_state.username = username
+                                profile_path = get_profile_image(username)
+                                if profile_path:
+                                    st.session_state.profile_image = profile_path
+                                db_history = load_user_history(username)
+                                if db_history:
+                                    st.session_state.analysis_history = []
+                                    for entry in db_history:
+                                        if isinstance(entry, dict):
+                                            if 'data' in entry:
+                                                st.session_state.analysis_history.append(entry['data'])
+                                            elif 'dominant_emotion' in entry:
+                                                st.session_state.analysis_history.append(entry)
+                                st.success("✅ Login successful!")
+                                st.balloons()
+                                st.rerun()
+                            else:
+                                st.error(result)
+                    else:
+                        st.warning("Please fill in all fields")
+        
+        with tab2:
+            with st.form("signup_form_modern"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    new_username = st.text_input("Username", placeholder="Choose a username", key="signup_username")
+                with col2:
+                    new_email = st.text_input("Email", placeholder="Enter your email", key="signup_email")
+                
+                new_password = st.text_input("Password", type="password", placeholder="Choose a password", key="signup_password")
+                confirm_password = st.text_input("Confirm Password", type="password", placeholder="Confirm your password", key="signup_confirm")
+                
+                # Password strength meter
+                if new_password:
+                    strength = 0
+                    if len(new_password) >= 8:
+                        strength += 25
+                    if any(c.isupper() for c in new_password):
+                        strength += 25
+                    if any(c.isdigit() for c in new_password):
+                        strength += 25
+                    if any(c in "!@#$%^&*" for c in new_password):
+                        strength += 25
+                    
+                    strength_color = "#EF4444" if strength < 50 else "#F59E0B" if strength < 75 else "#10B981"
+                    st.markdown(f"""
+                    <div style="margin-top: -0.5rem; margin-bottom: 1rem;">
+                        <div style="height: 4px; background: #E5E7EB; border-radius: 2px; overflow: hidden;">
+                            <div style="width: {strength}%; height: 100%; background: {strength_color}; transition: width 0.3s;"></div>
+                        </div>
+                        <p style="font-size: 0.75rem; color: {strength_color}; margin-top: 0.25rem;">
+                            Password strength: {strength}%
+                        </p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                submitted = st.form_submit_button("Create Account", use_container_width=True, type="primary")
+                
+                if submitted:
+                    if new_username and new_email and new_password and confirm_password:
+                        if new_password == confirm_password:
+                            if len(new_password) >= 6:
+                                with st.spinner("Creating your account..."):
+                                    success, message = create_user(new_username, new_password, new_email)
+                                    if success:
+                                        st.success(message)
+                                        st.balloons()
+                                        st.info("✅ Please login with your new account")
+                                    else:
+                                        st.error(message)
+                            else:
+                                st.error("Password must be at least 6 characters long")
+                        else:
+                            st.error("❌ Passwords don't match")
+                    else:
+                        st.warning("Please fill in all fields")
+        
+        st.markdown("</div></div>", unsafe_allow_html=True)
+
+# ==================== UPDATED HOME PAGE WITH DASHBOARD ====================
+def show_home_page_modern():
+    # Theme toggle button
+    col1, col2, col3 = st.columns([1, 10, 1])
+    with col3:
+        theme_icon = "🌙" if st.session_state.theme == 'light' else "☀️"
+        if st.button(f"{theme_icon}", help="Toggle Theme", use_container_width=True):
+            toggle_theme()
+            st.rerun()
+    
+    # Personalized welcome
+    st.markdown(f"""
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="animated-icon">
+                {get_logo_html('medium')}
+            </div>
+            <div>
+                <h1 style="margin: 0;">Welcome back, <span class="gradient-text">{st.session_state.username}</span>!</h1>
+                <p style="color: var(--text-secondary); margin: 0.5rem 0 0 0;">
+                    <span class="animated-icon">✨</span> {get_daily_quote()}
+                </p>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Wellness Score and Stats
+    gamification = Gamification()
+    wellness_score = WellnessScoreCalculator.calculate_overall_score(st.session_state.analysis_history)
+    trend = WellnessScoreCalculator.get_trend(st.session_state.analysis_history)
+    streak = gamification.calculate_streak(st.session_state.analysis_history)
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        trend_icon = "📈" if trend == "improving" else "📉" if trend == "declining" else "➡️"
+        trend_color = "#10B981" if trend == "improving" else "#EF4444" if trend == "declining" else "#6B7280"
+        st.markdown(f"""
+        <div class="glass-card" style="text-align: center;">
+            <h3 style="margin: 0; color: var(--primary);">Wellness Score</h3>
+            <div style="position: relative; width: 150px; height: 150px; margin: 1rem auto;">
+                <svg width="150" height="150" class="progress-ring">
+                    <circle stroke="#E5E7EB" stroke-width="8" fill="transparent" r="65" cx="75" cy="75"/>
+                    <circle stroke="{trend_color}" stroke-width="8" fill="transparent" r="65" cx="75" cy="75"
+                            stroke-dasharray="408.4" stroke-dashoffset="{408.4 * (1 - wellness_score/100)}"
+                            class="progress-ring-circle"/>
+                </svg>
+                <div class="gauge-value">{wellness_score:.0f}</div>
+            </div>
+            <p style="color: {trend_color};">{trend_icon} {trend.upper()}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <div class="glass-card" style="text-align: center;">
+            <div class="streak-badge" style="display: inline-flex; margin-bottom: 1rem;">
+                <span class="streak-fire">🔥</span>
+                <span>{streak} Day Streak!</span>
+            </div>
+            <div>
+                <p style="font-size: 2rem; margin: 0;">{len(st.session_state.analysis_history)}</p>
+                <p style="color: var(--text-secondary);">Total Analyses</p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        # Recent emotion distribution
+        if st.session_state.analysis_history:
+            recent_emotions = [e.get('dominant_emotion', 'neutral') for e in st.session_state.analysis_history[-10:]]
+            if recent_emotions:
+                most_common = max(set(recent_emotions), key=recent_emotions.count)
+                emotion_icons = {
+                    'happy': '😊', 'joy': '😊', 'calm': '😌', 'neutral': '😐',
+                    'sad': '😔', 'sadness': '😔', 'fear': '😨', 'fearful': '😨',
+                    'angry': '😠', 'anger': '😠', 'disgust': '🤢', 'surprise': '😲'
+                }
+                st.markdown(f"""
+                <div class="glass-card" style="text-align: center;">
+                    <h3 style="margin: 0;">Recent Mood</h3>
+                    <div style="font-size: 4rem;">{emotion_icons.get(most_common, '😐')}</div>
+                    <p style="color: var(--text-secondary);">{most_common.upper()}</p>
+                </div>
+                """, unsafe_allow_html=True)
+    
+    with col4:
+        st.markdown(f"""
+        <div class="glass-card" style="text-align: center;">
+            <h3 style="margin: 0;">Quick Actions</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
+                <button class="ripple-button" onclick="alert('Coming soon!')">📅 Schedule Check-in</button>
+                <button class="ripple-button" onclick="alert('Coming soon!')">📊 View Full Report</button>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Quick Action Cards
+    st.markdown("### 🚀 Quick Actions")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("🎭 Facial Analysis", use_container_width=True, type="primary"):
+            st.session_state.current_page = "Facial Analysis"
+            st.rerun()
+    
+    with col2:
+        if st.button("📝 Text Analysis", use_container_width=True, type="primary"):
+            st.session_state.current_page = "Text Analysis"
+            st.rerun()
+    
+    with col3:
+        if st.button("🎤 Voice Analysis", use_container_width=True, type="primary"):
+            st.session_state.current_page = "Voice Analysis"
+            st.rerun()
+    
+    # Recent Activity Feed
+    if st.session_state.analysis_history:
+        st.markdown("### 📋 Recent Activity")
+        recent_entries = st.session_state.analysis_history[-5:]
+        
+        for entry in reversed(recent_entries):
+            entry_type = entry.get('type', 'facial_analysis')
+            timestamp = entry.get('timestamp', 'Unknown')[:16]
+            emotion = entry.get('dominant_emotion', 'neutral').capitalize()
+            
+            icons = {
+                'facial_analysis': '🎭',
+                'text_analysis': '📝',
+                'voice_analysis': '🎤'
+            }
+            icon = icons.get(entry_type, '✨')
+            
+            st.markdown(f"""
+            <div class="glass-card" style="margin-bottom: 0.5rem; padding: 0.75rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <span style="font-size: 1.5rem;">{icon}</span>
+                        <strong> {entry_type.replace('_', ' ').title()}</strong>
+                        <span style="color: var(--text-secondary);"> at {timestamp}</span>
+                    </div>
+                    <div>
+                        <span class="mood-{emotion.lower()}" style="border-left: 3px solid; padding-left: 0.5rem;">
+                            {emotion}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    # Achievements Section
+    unlocked_achievements = gamification.check_achievements(st.session_state.analysis_history)
+    
+    if unlocked_achievements:
+        st.markdown("### 🏆 Your Achievements")
+        cols = st.columns(min(len(unlocked_achievements), 4))
+        
+        for idx, achievement_key in enumerate(unlocked_achievements[:4]):
+            achievement = gamification.achievements[achievement_key]
+            with cols[idx % 4]:
+                st.markdown(f"""
+                <div class="achievement-badge unlocked">
+                    <div class="achievement-icon">{achievement['icon']}</div>
+                    <strong>{achievement['name']}</strong>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                        {achievement['description']}
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
+    
+    # Wellness Tips Carousel
+    st.markdown("### 💡 Wellness Tips")
+    
+    tips = [
+        "🧘 Take 5 deep breaths - inhale for 4, hold for 4, exhale for 4",
+        "🚶 Step away from screens for 5 minutes",
+        "💧 Drink a glass of water right now",
+        "📝 Write down one thing you're grateful for today",
+        "🎵 Listen to your favorite calming music",
+        "🌿 Practice grounding: 5 things you see, 4 you touch, 3 you hear, 2 you smell, 1 you taste",
+        "😊 Smile at yourself in the mirror",
+        "📞 Reach out to someone you care about"
+    ]
+    
+    current_tip_index = datetime.now().hour % len(tips)
+    st.info(tips[current_tip_index])
+
+# ==================== UPDATED MAIN APP WITH THEME ====================
+def show_main_app_modern():
+    # Apply theme CSS
+    st.markdown(get_theme_css(), unsafe_allow_html=True)
+    st.markdown(MODERN_CSS, unsafe_allow_html=True)
+    
+    with st.sidebar:
+        # Profile section
+        profile_image_path = st.session_state.profile_image or get_profile_image(st.session_state.username)
+        
+        if profile_image_path and os.path.exists(profile_image_path):
+            with open(profile_image_path, "rb") as f:
+                img_data = f.read()
+                img_base64 = base64.b64encode(img_data).decode()
+            profile_html = f'<img src="data:image/png;base64,{img_base64}" class="sidebar-profile-image">'
+        else:
+            profile_html = '<img src="https://img.icons8.com/fluency/96/000000/user-male-circle.png" class="sidebar-profile-image">'
+        
+        # Quick stats badge
+        gamification = Gamification()
+        streak = gamification.calculate_streak(st.session_state.analysis_history)
+        
+        st.markdown(f"""
+        <div class="sidebar-profile">
+            {profile_html}
+            <h3 style="color: var(--primary); margin: 0.5rem 0 0 0;">{st.session_state.username}</h3>
+            <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">
+                {get_daily_quote()[:50]}...
+            </p>
+            <div class="streak-badge" style="margin-top: 0.5rem; justify-content: center;">
+                🔥 {streak} Day Streak
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("---")
+        
+        # Navigation with tooltips
+        selected = option_menu(
+            menu_title="Navigation",
+            options=["Home", "Facial Analysis", "Text Analysis", "Voice Analysis", "Mental Health Tips", "History", "Analytics", "Profile"],
+            icons=["house", "camera", "pencil-square", "mic", "heart", "clock-history", "graph-up", "person"],
+            menu_icon="cast",
+            default_index=0,
+            styles={
+                "container": {"padding": "0!important", "background-color": "transparent"},
+                "icon": {"color": "var(--primary)", "font-size": "20px"},
+                "nav-link": {
+                    "font-size": "16px", 
+                    "text-align": "left", 
+                    "margin": "0px",
+                    "color": "var(--text)"
+                },
+                "nav-link-selected": {"background-color": "var(--primary)"},
+            }
+        )
+        
+        st.markdown("---")
+        
+        # Keyboard shortcuts info
+        with st.expander("⌨️ Keyboard Shortcuts"):
+            st.markdown("""
+            - `Ctrl + H` - Home
+            - `Ctrl + F` - Facial Analysis
+            - `Ctrl + T` - Text Analysis
+            - `Ctrl + V` - Voice Analysis
+            - `Ctrl + P` - Profile
+            """)
+        
+        st.markdown("---")
+        
+        if st.button("🚪 Logout", use_container_width=True):
+            st.session_state.logged_in = False
+            st.session_state.username = None
+            st.session_state.analysis_history = []
+            st.session_state.profile_image = None
+            st.rerun()
+    
+    # Page routing
+    if selected == "Home":
+        show_home_page_modern()
+    elif selected == "Facial Analysis":
+        show_emotion_analysis()
+    elif selected == "Text Analysis":
+        show_text_analysis_enhanced()
+    elif selected == "Voice Analysis":
+        show_voice_analysis_enhanced()
+    elif selected == "Mental Health Tips":
+        show_mental_health_tips()
+    elif selected == "History":
+        show_history()
+    elif selected == "Analytics":
+        show_analytics()
+    elif selected == "Profile":
+        show_profile()
+
+# ==================== MODIFIED MAIN EXECUTION ====================
+def main():
+    # Apply base CSS
+    st.markdown(MODERN_CSS, unsafe_allow_html=True)
+    
+    if not st.session_state.logged_in:
+        show_login_signup_modern()
+    else:
+        show_main_app_modern()
+
+# Add keyboard shortcut handling
+def handle_keyboard_shortcuts():
+    """JavaScript for keyboard shortcuts"""
+    keyboard_js = """
+    <script>
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'h') {
+            e.preventDefault();
+            window.location.href = '?page=Home';
+        }
+        if (e.ctrlKey && e.key === 'f') {
+            e.preventDefault();
+            window.location.href = '?page=Facial Analysis';
+        }
+        if (e.ctrlKey && e.key === 't') {
+            e.preventDefault();
+            window.location.href = '?page=Text Analysis';
+        }
+        if (e.ctrlKey && e.key === 'v') {
+            e.preventDefault();
+            window.location.href = '?page=Voice Analysis';
+        }
+        if (e.ctrlKey && e.key === 'p') {
+            e.preventDefault();
+            window.location.href = '?page=Profile';
+        }
+    });
+    </script>
+    """
+    st.components.v1.html(keyboard_js, height=0)
+
+# Call this after setting page config
+handle_keyboard_shortcuts()
+
+if __name__ == "__main__":
+    main()
+
 # ==================== PROFESSIONAL COLOR PALETTE ====================
 COLORS = {
     'primary': '#6366F1',
@@ -3752,8 +4895,23 @@ def show_analytics():
     
     # Facial Analysis Charts
     if facial_data:
-        st.markdown("### 🎭 Facial Analysis Timeline")
+        st.markdown("### 🎭 Facial Analysis Overview")
         
+        # Emotion distribution pie chart
+        facial_emotions = [e['dominant_emotion'] for e in facial_data if 'dominant_emotion' in e]
+        if facial_emotions:
+            emotion_counts = Counter(facial_emotions)
+            
+            fig_facial_dist = px.pie(
+                values=list(emotion_counts.values()),
+                names=[e.capitalize() for e in emotion_counts.keys()],
+                title="Facial Emotion Distribution",
+                color=[MENTAL_HEALTH_MAPPING.get(e, {}).get('color', '#808080') for e in emotion_counts.keys()],
+                color_discrete_map="identity"
+            )
+            st.plotly_chart(fig_facial_dist, use_container_width=True)
+        
+        # Timeline if we have timestamps
         facial_with_time = []
         for entry in facial_data:
             if 'timestamp' in entry:
@@ -3765,19 +4923,41 @@ def show_analytics():
             if fig_timeline:
                 st.plotly_chart(fig_timeline, use_container_width=True)
         
-        st.markdown("### 📈 Facial Analysis Radar")
+        # Radar chart
         if facial_with_time:
             facial_radar_df = pd.DataFrame(facial_with_time)
             fig_radar = create_emotion_radar(facial_radar_df)
             if fig_radar:
                 st.plotly_chart(fig_radar, use_container_width=True)
         
-        st.markdown("### 📅 Facial Weekly Pattern")
+        # Weekly pattern
         if facial_with_time:
             facial_weekly_df = pd.DataFrame(facial_with_time)
             fig_weekly = create_weekly_pattern(facial_weekly_df)
             if fig_weekly:
                 st.plotly_chart(fig_weekly, use_container_width=True)
+        
+        # Confidence trend
+        if len(facial_data) > 1:
+            facial_sorted = sorted(facial_data, key=lambda x: x.get('timestamp', ''))
+            confidences = [e.get('confidence', 0) * 100 for e in facial_sorted]
+            
+            fig_conf = go.Figure()
+            fig_conf.add_trace(go.Scatter(
+                y=confidences,
+                mode='lines+markers',
+                name='Confidence',
+                line=dict(color='#4A90E2', width=2),
+                marker=dict(size=8, color='#4A90E2')
+            ))
+            fig_conf.update_layout(
+                title="Confidence Trend Over Time",
+                xaxis_title="Analysis Sequence",
+                yaxis_title="Confidence (%)",
+                height=300,
+                yaxis_range=[0, 100]
+            )
+            st.plotly_chart(fig_conf, use_container_width=True)
     
     # Text Analysis Overview
     if text_data:
@@ -3786,11 +4966,14 @@ def show_analytics():
         avg_sentiment = 0
         avg_word_count = 0
         crisis_count = 0
+        sentiment_history = []
         
         for entry in text_data:
             if 'sentiment' in entry and isinstance(entry['sentiment'], dict):
                 if 'combined' in entry['sentiment']:
-                    avg_sentiment += entry['sentiment']['combined'].get('compound', 0)
+                    sentiment_val = entry['sentiment']['combined'].get('compound', 0)
+                    avg_sentiment += sentiment_val
+                    sentiment_history.append(sentiment_val)
             
             if 'statistics' in entry and isinstance(entry['statistics'], dict):
                 avg_word_count += entry['statistics'].get('word_count', 0)
@@ -3803,14 +4986,39 @@ def show_analytics():
             avg_sentiment /= len(text_data)
             avg_word_count /= len(text_data)
         
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.metric("Avg Sentiment", f"{avg_sentiment:.2f}")
+            st.metric("Total Texts", len(text_data))
         with col2:
-            st.metric("Avg Word Count", f"{avg_word_count:.0f}")
+            st.metric("Avg Sentiment", f"{avg_sentiment:.2f}")
         with col3:
+            st.metric("Avg Word Count", f"{avg_word_count:.0f}")
+        with col4:
             st.metric("Crisis Alerts", crisis_count)
         
+        # Sentiment trend
+        if len(sentiment_history) > 1:
+            fig_sentiment = go.Figure()
+            fig_sentiment.add_trace(go.Scatter(
+                y=sentiment_history,
+                mode='lines+markers',
+                name='Sentiment',
+                line=dict(color='#F59E0B', width=2),
+                marker=dict(size=8, color='#F59E0B'),
+                fill='tozeroy',
+                fillcolor='#F59E0B20'
+            ))
+            fig_sentiment.add_hline(y=0, line_dash="dash", line_color="gray")
+            fig_sentiment.update_layout(
+                title="Sentiment Trend Over Time",
+                xaxis_title="Analysis Sequence",
+                yaxis_title="Sentiment Score",
+                height=300,
+                yaxis_range=[-1, 1]
+            )
+            st.plotly_chart(fig_sentiment, use_container_width=True)
+        
+        # Text emotion distribution
         text_emotions = []
         for entry in text_data:
             if 'dominant_emotion' in entry:
@@ -3823,9 +5031,60 @@ def show_analytics():
                 y=list(emotion_counts.values()),
                 title="Text Emotion Distribution",
                 color=[TEXT_EMOTION_MAPPING.get(e, {}).get('color', '#808080') for e in emotion_counts.keys()],
-                labels={'x': 'Emotion', 'y': 'Count'}
+                labels={'x': 'Emotion', 'y': 'Count'},
+                text_auto=True
             )
+            fig_text_dist.update_layout(height=400, showlegend=False)
             st.plotly_chart(fig_text_dist, use_container_width=True)
+        
+        # Risk level breakdown
+        risk_levels = []
+        for entry in text_data:
+            if 'crisis_risk' in entry and isinstance(entry['crisis_risk'], dict):
+                risk_levels.append(entry['crisis_risk'].get('risk_level', 'none'))
+        
+        if risk_levels:
+            risk_counts = Counter(risk_levels)
+            risk_colors = {
+                'CRITICAL': '#7F1D1D',
+                'HIGH': '#EF4444',
+                'MODERATE': '#F59E0B',
+                'LOW': '#FBBF24',
+                'none': '#6B7280'
+            }
+            
+            fig_risk = px.pie(
+                values=list(risk_counts.values()),
+                names=[r.capitalize() if r != 'none' else 'None' for r in risk_counts.keys()],
+                title="Crisis Risk Distribution",
+                color=[risk_colors.get(r, '#6B7280') for r in risk_counts.keys()],
+                color_discrete_map="identity"
+            )
+            st.plotly_chart(fig_risk, use_container_width=True)
+    
+    # Correlation Analysis (if we have multiple analysis types)
+    if facial_data and text_data:
+        st.markdown("### 🔄 Cross-Modal Analysis")
+        st.info("Comparing facial and text analysis results to identify patterns in emotional expression across different modalities.")
+        
+        # Sample comparison
+        recent_facial = facial_data[-3:] if len(facial_data) >= 3 else facial_data
+        recent_text = text_data[-3:] if len(text_data) >= 3 else text_data
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("**Recent Facial Emotions**")
+            for entry in recent_facial:
+                emotion = entry.get('dominant_emotion', 'unknown')
+                timestamp = entry.get('timestamp', 'Unknown')[:16]
+                st.markdown(f"- {timestamp}: {emotion.upper()}")
+        
+        with col2:
+            st.markdown("**Recent Text Emotions**")
+            for entry in recent_text:
+                emotion = entry.get('dominant_emotion', 'unknown')
+                timestamp = entry.get('timestamp', 'Unknown')[:16]
+                st.markdown(f"- {timestamp}: {emotion.upper()}")
     
     # PDF Report Generation Section
     st.markdown("---")
@@ -3962,8 +5221,8 @@ def show_analytics():
                         'Type': 'Voice Analysis',
                         'Primary Emotion': entry.get('dominant_emotion', 'N/A'),
                         'Confidence': f"{entry.get('confidence', 0)*100:.1f}%",
-                        'Pitch (Hz)': entry.get('features', {}).get('pitch_mean', 0),
-                        'Health Alerts': len(entry.get('health_indicators', []))
+                        'Pitch (Hz)': entry.get('features', {}).get('pitch_mean', 0) if isinstance(entry.get('features'), dict) else 0,
+                        'Health Alerts': len(entry.get('health_indicators', [])) if isinstance(entry.get('health_indicators'), list) else 0
                     })
                 else:
                     export_data.append({
@@ -4018,13 +5277,13 @@ def show_profile():
                         img_base64 = base64.b64encode(img_data).decode()
                     st.markdown(f"""
                     <div class="profile-image-container">
-                        <img src="data:image/png;base64,{img_base64}" class="profile-image">
+                        <img src="data:image/png;base64,{img_base64}" class="profile-image" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
                     </div>
                     """, unsafe_allow_html=True)
                 else:
                     st.markdown("""
                     <div class="profile-image-container">
-                        <img src="https://img.icons8.com/fluency/240/000000/user-male-circle.png" class="profile-image">
+                        <img src="https://img.icons8.com/fluency/240/000000/user-male-circle.png" class="profile-image" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
                     </div>
                     """, unsafe_allow_html=True)
             
@@ -4205,7 +5464,7 @@ def show_home_page():
         st.info("Your voice, face, and words all tell a story. Our enhanced AI now understands them better than ever.")
         
         if st.session_state.analysis_history:
-            st.markdown("### 📊 Your Stats")
+            st.markdown("### 📊 Your States")
             total = len(st.session_state.analysis_history)
             facial_count = len([e for e in st.session_state.analysis_history if e.get('type') == 'facial_analysis'])
             text_count = len([e for e in st.session_state.analysis_history if e.get('type') == 'text_analysis'])
@@ -4418,9 +5677,9 @@ def show_main_app():
 # ==================== MAIN EXECUTION ====================
 def main():
     if not st.session_state.logged_in:
-        show_login_signup()
+        show_login_signup()      
     else:
         show_main_app()
 
 if __name__ == "__main__": 
-    main()
+    main()        
