@@ -11,3 +11,4 @@ matplotlib
 textblob
 nltk
 wordcloud
+tensorflow-cpu>=2.13.0,<2.16.0

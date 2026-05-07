@@ -72,3 +72,10 @@ python -m streamlit run app.py
 python -m streamlit run Main-app.py
   python -m streamlit run Main-app2.py
   python -m streamlit run Voice-app.py
+   python -m streamlit run neurowell_redesign.py
+   python -m streamlit run Main-app3.py
+
+
+   git add .
+   git commit -m "Fixed requirements for Streamlit deployment"
+   git push origin main --force
